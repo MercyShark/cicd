@@ -1,0 +1,54 @@
+name: CICD Pipeline 
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+env:
+  AWS_REGION: ${{ vars.region }}
+  AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+  AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    environment: development
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ vars.region }}  
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+  
+      - name: Initialize Terraform
+        working-directory: infra/terraform/setup
+        run: |
+          terraform init \
+            -backend-config="bucket=${{ vars.bucket_name }}" \
+            -backend-config="key=terraform.tfstate" \
+            -backend-config="region=${{ vars.region }}" \
+            -backend-config="dynamodb_table=${{ vars.lock_table_name }}" \
+            -backend-config="encrypt=true"
+
+      - name: Format Terraform
+        working-directory: infra/terraform/setup
+        run: terraform fmt -check
+        
+      # - name: Validate Terraform
+      #   working-directory: infra/terraform/setup
+      #   run: terraform validate
+
+      - name: Apply Terraform
+        working-directory: infra/terraform/setup
+        run: terraform apply -auto-approve 
+
+      
