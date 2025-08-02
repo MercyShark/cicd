@@ -15,6 +15,7 @@ crash.log
 *.tfvars
 *.tfvars.json
 
+*.hcl
 # Override files (often used locally)
 override.tf
 override.tf.json
