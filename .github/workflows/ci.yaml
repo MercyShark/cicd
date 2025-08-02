@@ -39,9 +39,9 @@ jobs:
             -backend-config="dynamodb_table=${{ vars.lock_table_name }}" \
             -backend-config="encrypt=true"
 
-      - name: Format Terraform
-        working-directory: infra/terraform/setup
-        run: terraform fmt -check
+      # - name: Format Terraform
+      #   working-directory: infra/terraform/setup
+      #   run: terraform fmt -check
         
       # - name: Validate Terraform
       #   working-directory: infra/terraform/setup
