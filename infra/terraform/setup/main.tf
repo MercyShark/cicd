@@ -18,7 +18,7 @@ resource "aws_instance" "ubuntu_instances" {
     associate_public_ip_address = true
 
     tags = {
-      Name = "EC2-testing"
+      Name = "EC2-testing-test"
     }
 }
 output "public_ips" {
