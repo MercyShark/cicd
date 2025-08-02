@@ -1,26 +1,21 @@
-terraform {
-  required_providers {
-    aws = {
-      source  = "hashicorp/aws"
-      version = "~> 5.0"
-    }
-  }
-  backend "s3" {
-  }
+provider "aws" {
+  region = var.region
 }
 
-variable "ubuntu_ami_id" {
-    default ="ami-0f918f7e67a3323f0" 
+module "vpc_subnet" {
+  source = "./modules/vpc_subnet"
+  availability_zone = var.availability_zone
+  public_subnet_a_cidr_block = var.public_subnet_a_cidr_block
+  vpc_cidr_block_address = var.vpc_cidr_block_address
+  region = var.region
 }
-resource "aws_instance" "ubuntu_instances" {
-    ami = var.ubuntu_ami_id
-    instance_type = "t2.micro"
-    associate_public_ip_address = true
 
-    tags = {
-      Name = "EC2-testing-test"
-    }
-}
-output "public_ips" {
-  value = aws_instance.ubuntu_instances.public_ip
+module "backend_server" {
+  source = "./modules/backend_server"
+  instance_type = var.instance_type
+  public_key_path = var.public_key_path
+  subnet_id = module.vpc_subnet.public_subnet_id
+  vpc_id = module.vpc_subnet.vpc_id
+  ubuntu_ami_id = var.ubuntu_ami_id
+  region = var.region
 }
