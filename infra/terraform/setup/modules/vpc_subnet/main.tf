@@ -7,6 +7,8 @@ resource "aws_vpc" "my_custom_vpc" {
   tags = {
     Name = "my_custom_vpc_made_with_terraform"
   }
+  enable_dns_hostnames = true
+  enable_dns_support = true
 }
  
 resource "aws_internet_gateway" "my_custom_itg" {
@@ -32,7 +34,7 @@ resource "aws_route_table" "public_route_table" {
 resource "aws_subnet" "public_subnet_A" {
   cidr_block              = var.public_subnet_a_cidr_block
   vpc_id                  = aws_vpc.my_custom_vpc.id
-  availability_zone       = var.availability_zone
+  availability_zone       = var.availability_zone_a
   map_public_ip_on_launch = true
 
   tags = {
@@ -40,8 +42,23 @@ resource "aws_subnet" "public_subnet_A" {
   }
 }
 
-resource "aws_route_table_association" "public_subnet_association_with_route_table" {
+resource "aws_subnet" "public_subnet_B" {
+  cidr_block              = var.public_subnet_b_cidr_block
+  vpc_id                  = aws_vpc.my_custom_vpc.id
+  availability_zone       = var.availability_zone_b
+  map_public_ip_on_launch = true
+
+  tags = {
+    "Name" = "Public Subnet B"
+  }
+}
+
+resource "aws_route_table_association" "public_subnet_association_with_route_table_a" {
   route_table_id = aws_route_table.public_route_table.id
   subnet_id      = aws_subnet.public_subnet_A.id
+}
+resource "aws_route_table_association" "public_subnet_association_with_route_table_b" {
+  route_table_id = aws_route_table.public_route_table.id
+  subnet_id      = aws_subnet.public_subnet_B.id
 }
 
