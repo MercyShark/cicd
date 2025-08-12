@@ -32,3 +32,8 @@ override.tf.json
 .vscode/
 .idea/
 *.swp
+
+
+*.env
+
+*.exe
